@@ -1,0 +1,14 @@
+com/hotel/auth/controller/AuthController.class
+com/hotel/auth/exception/BadCredentialsAppException.class
+com/hotel/auth/dto/LoginRequest.class
+com/hotel/auth/exception/GlobalExceptionHandler.class
+com/hotel/auth/HotelAuthServiceApplication.class
+com/hotel/auth/dto/ErrorResponse.class
+com/hotel/auth/config/DataSeeder.class
+com/hotel/auth/entity/Role.class
+com/hotel/auth/service/AuthService.class
+com/hotel/auth/repository/UserRepository.class
+com/hotel/auth/config/SecurityConfig.class
+com/hotel/auth/security/JwtUtil.class
+com/hotel/auth/entity/User.class
+com/hotel/auth/dto/LoginResponse.class

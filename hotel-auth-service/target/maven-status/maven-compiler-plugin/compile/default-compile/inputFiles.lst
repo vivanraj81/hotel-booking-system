@@ -1,0 +1,14 @@
+/app/hotel-auth-service/src/main/java/com/hotel/auth/config/DataSeeder.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/security/JwtUtil.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/exception/GlobalExceptionHandler.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/entity/User.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/controller/AuthController.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/service/AuthService.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/repository/UserRepository.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/dto/LoginRequest.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/config/SecurityConfig.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/dto/LoginResponse.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/entity/Role.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/dto/ErrorResponse.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/HotelAuthServiceApplication.java
+/app/hotel-auth-service/src/main/java/com/hotel/auth/exception/BadCredentialsAppException.java

@@ -1,0 +1,57 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$primary: mat.define-palette(mat.$indigo-palette, 600);
+$accent: mat.define-palette(mat.$amber-palette, A400, A100, A700);
+$warn: mat.define-palette(mat.$red-palette);
+
+$theme: mat.define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn,
+  ),
+  density: 0,
+));
+
+@include mat.all-component-themes($theme);
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  background: #f4f6fb;
+}
+
+* { box-sizing: border-box; }
+
+.full-width { width: 100%; }
+.spacer { flex: 1 1 auto; }
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0 0 8px;
+  color: #1a237e;
+}
+
+.page-subtitle {
+  color: #5c6b8a;
+  margin: 0 0 24px;
+}
+
+.flex-row { display: flex; align-items: center; gap: 12px; }
+.gap-16 { gap: 16px; }
+
+.success-snack { background: #2e7d32 !important; color: #fff !important; }
+.error-snack { background: #c62828 !important; color: #fff !important; }
+
+.mat-mdc-snack-bar-container.success-snack .mdc-snackbar__surface { background-color: #2e7d32 !important; }
+.mat-mdc-snack-bar-container.error-snack .mdc-snackbar__surface { background-color: #c62828 !important; }
