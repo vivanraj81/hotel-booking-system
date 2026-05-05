@@ -4,6 +4,7 @@
 /app/hotel-booking-service/src/main/java/com/hotel/booking/dto/BookingRequest.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/controller/HotelController.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/exception/GlobalExceptionHandler.java
+/app/hotel-booking-service/src/main/java/com/hotel/booking/exception/InvalidBookingException.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/controller/AdminController.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/security/JwtUtil.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/repository/HotelRepository.java

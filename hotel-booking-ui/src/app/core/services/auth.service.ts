@@ -43,6 +43,25 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) return false;
+    if (this.isTokenExpired(token)) {
+      this.logout();
+      return false;
+    }
+    return true;
+  }
+
+  /** Decode JWT payload (no signature check — just exp claim). */
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+      if (!decoded.exp) return false;
+      const nowSec = Math.floor(Date.now() / 1000);
+      return nowSec >= decoded.exp;
+    } catch {
+      return true;
+    }
   }
 }

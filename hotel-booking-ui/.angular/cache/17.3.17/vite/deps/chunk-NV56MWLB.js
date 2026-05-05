@@ -1414,6 +1414,17 @@ var ListKeyManager = class {
     }
   }
 };
+var ActiveDescendantKeyManager = class extends ListKeyManager {
+  setActiveItem(index) {
+    if (this.activeItem) {
+      this.activeItem.setInactiveStyles();
+    }
+    super.setActiveItem(index);
+    if (this.activeItem) {
+      this.activeItem.setActiveStyles();
+    }
+  }
+};
 var FocusKeyManager = class extends ListKeyManager {
   constructor() {
     super(...arguments);
@@ -5364,6 +5375,7 @@ export {
   RIGHT_ARROW,
   DOWN_ARROW,
   DELETE,
+  A,
   hasModifierKey,
   coerceBooleanProperty,
   coerceNumberProperty,
@@ -5375,6 +5387,10 @@ export {
   ObserversModule,
   BreakpointObserver,
   Breakpoints,
+  addAriaReferencedId,
+  removeAriaReferencedId,
+  AriaDescriber,
+  ActiveDescendantKeyManager,
   FocusKeyManager,
   CdkTrapFocus,
   LiveAnnouncer,
@@ -5429,4 +5445,4 @@ export {
   MatRippleLoader,
   _MatInternalFormField
 };
-//# sourceMappingURL=chunk-GRLZLTOT.js.map
+//# sourceMappingURL=chunk-NV56MWLB.js.map

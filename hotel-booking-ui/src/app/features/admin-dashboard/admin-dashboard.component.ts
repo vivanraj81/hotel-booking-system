@@ -1,7 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
@@ -12,8 +14,8 @@ import { HotelService } from '../../core/services/hotel.service';
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [
-    CommonModule, MatCardModule, MatTableModule, MatIconModule,
-    MatProgressSpinnerModule, MatChipsModule
+    CommonModule, MatCardModule, MatTableModule, MatPaginatorModule, MatSortModule,
+    MatIconModule, MatProgressSpinnerModule, MatChipsModule
   ],
   template: `
     <div class="app-container">
@@ -27,7 +29,7 @@ import { HotelService } from '../../core/services/hotel.service';
       <div class="stats-row">
         <mat-card class="stat-card stat-blue">
           <div class="stat-label">Total Bookings</div>
-          <div class="stat-value" data-testid="stat-total-bookings">{{ bookings().length }}</div>
+          <div class="stat-value" data-testid="stat-total-bookings">{{ dataSource.data.length }}</div>
         </mat-card>
         <mat-card class="stat-card stat-green">
           <div class="stat-label">Total Revenue</div>
@@ -48,16 +50,16 @@ import { HotelService } from '../../core/services/hotel.service';
         </div>
 
         <div *ngIf="!loading()">
-          <table mat-table [dataSource]="bookings()" class="full-width" data-testid="bookings-table">
+          <table mat-table [dataSource]="dataSource" matSort class="full-width" data-testid="bookings-table">
             <ng-container matColumnDef="hotelName">
-              <th mat-header-cell *matHeaderCellDef>Hotel Name</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Hotel Name</th>
               <td mat-cell *matCellDef="let b">
                 <span class="cell-strong">{{ b.hotelName }}</span>
               </td>
             </ng-container>
 
             <ng-container matColumnDef="reservedDate">
-              <th mat-header-cell *matHeaderCellDef>Reserved Date</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Reserved Date</th>
               <td mat-cell *matCellDef="let b">
                 <mat-icon class="date-icon">event</mat-icon>
                 {{ b.reservedDate | date: 'mediumDate' }}
@@ -65,7 +67,7 @@ import { HotelService } from '../../core/services/hotel.service';
             </ng-container>
 
             <ng-container matColumnDef="username">
-              <th mat-header-cell *matHeaderCellDef>Reserved For User</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Reserved For User</th>
               <td mat-cell *matCellDef="let b">
                 <mat-icon class="user-icon">person</mat-icon>
                 {{ b.username }}
@@ -73,7 +75,7 @@ import { HotelService } from '../../core/services/hotel.service';
             </ng-container>
 
             <ng-container matColumnDef="amountPaid">
-              <th mat-header-cell *matHeaderCellDef>Amount Paid</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount Paid</th>
               <td mat-cell *matCellDef="let b">
                 <span class="amount-cell">&#8377;{{ b.amountPaid | number: '1.0-0' }}</span>
               </td>
@@ -84,7 +86,14 @@ import { HotelService } from '../../core/services/hotel.service';
                 [attr.data-testid]="'booking-row-' + row.id"></tr>
           </table>
 
-          <div *ngIf="bookings().length === 0" class="empty" data-testid="no-bookings">
+          <mat-paginator
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            [pageSize]="10"
+            showFirstLastButtons
+            data-testid="bookings-paginator">
+          </mat-paginator>
+
+          <div *ngIf="dataSource.data.length === 0" class="empty" data-testid="no-bookings">
             <mat-icon>inbox</mat-icon>
             <p>No bookings yet.</p>
           </div>
@@ -143,23 +152,36 @@ import { HotelService } from '../../core/services/hotel.service';
     tr.mat-mdc-row:hover { background: #f4f6fb; }
   `]
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, AfterViewInit {
   private hotelService = inject(HotelService);
 
-  bookings = signal<BookingResponse[]>([]);
+  dataSource = new MatTableDataSource<BookingResponse>([]);
   loading = signal<boolean>(true);
   displayedColumns = ['hotelName', 'reservedDate', 'username', 'amountPaid'];
 
-  totalRevenue = () => this.bookings().reduce((s, b) => s + (b.amountPaid || 0), 0);
-  uniqueGuests = () => new Set(this.bookings().map((b) => b.username)).size;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  totalRevenue = () => this.dataSource.data.reduce((s, b) => s + (b.amountPaid || 0), 0);
+  uniqueGuests = () => new Set(this.dataSource.data.map((b) => b.username)).size;
 
   ngOnInit(): void {
     this.hotelService.getAllBookings().subscribe({
       next: (list) => {
-        this.bookings.set(list);
+        this.dataSource.data = list;
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    // Custom accessor so sorting on date works lexically (ISO strings already sort fine).
+    this.dataSource.sortingDataAccessor = (item, prop) => {
+      const value = (item as unknown as Record<string, unknown>)[prop];
+      return typeof value === 'number' ? value : String(value ?? '').toLowerCase();
+    };
   }
 }

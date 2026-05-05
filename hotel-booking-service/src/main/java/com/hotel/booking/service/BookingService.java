@@ -5,6 +5,7 @@ import com.hotel.booking.dto.BookingResponse;
 import com.hotel.booking.entity.Booking;
 import com.hotel.booking.entity.Hotel;
 import com.hotel.booking.exception.BookingConflictException;
+import com.hotel.booking.exception.InvalidBookingException;
 import com.hotel.booking.exception.ResourceNotFoundException;
 import com.hotel.booking.repository.BookingRepository;
 import com.hotel.booking.repository.HotelRepository;
@@ -12,7 +13,7 @@ import com.hotel.booking.repository.UserLookupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +35,14 @@ public class BookingService {
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request, String username) {
+        // Validate date window: must be within the next 7 days (today .. today+6)
+        LocalDate today = LocalDate.now();
+        LocalDate maxDate = today.plusDays(6);
+        if (request.getDate().isBefore(today) || request.getDate().isAfter(maxDate)) {
+            throw new InvalidBookingException(
+                    "Booking date must be within the next 7 days (" + today + " to " + maxDate + ")");
+        }
+
         Hotel hotel = hotelRepository.findById(request.getHotelId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel not found: " + request.getHotelId()));
 

@@ -19,6 +19,7 @@ import {
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import moment, { Moment } from 'moment';
 import { Hotel, Availability } from '../../core/models/api.models';
 import { HotelService } from '../../core/services/hotel.service';
@@ -37,7 +38,7 @@ interface HotelWithState extends Hotel {
   imports: [
     CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
     MatDatepickerModule, MatFormFieldModule, MatInputModule,
-    MatProgressSpinnerModule, MatChipsModule
+    MatProgressSpinnerModule, MatChipsModule, MatTooltipModule
   ],
   providers: [
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
@@ -179,6 +180,10 @@ interface HotelWithState extends Hotel {
       letter-spacing: 0.5px;
     }
     .small-icon { font-size: 14px; height: 14px; width: 14px; }
+    .info-icon {
+      font-size: 14px; height: 14px; width: 14px;
+      cursor: help; color: #90a4ae; margin-left: 4px;
+    }
     .booked-chip {
       background: #ffebee !important;
       color: #c62828 !important;
@@ -268,19 +273,43 @@ export class UserDashboardComponent implements OnInit {
     const dateStr = hotel.selectedDate.format('YYYY-MM-DD');
     hotel.booking = true;
 
-    this.hotelService.createBooking({ hotelId: hotel.id, date: dateStr }).subscribe({
-      next: (res) => {
-        hotel.booking = false;
-        hotel.selectedDate = null;
-        this.snack.open(res.message, 'Close', {
-          duration: 4000, panelClass: ['success-snack']
+    // Re-fetch availability before committing to prevent stale UI
+    this.hotelService.getAvailability(hotel.id).subscribe({
+      next: (av) => {
+        hotel.bookedDates = av.bookedDates || [];
+        hotel.availableDates = av.availableDates || [];
+        if (!hotel.availableDates.includes(dateStr)) {
+          hotel.booking = false;
+          hotel.selectedDate = null;
+          this.hotels.update((arr) => [...arr]);
+          this.snack.open('Please try again!!', 'Close', {
+            duration: 3500, panelClass: ['error-snack']
+          });
+          return;
+        }
+
+        this.hotelService.createBooking({ hotelId: hotel.id, date: dateStr }).subscribe({
+          next: (res) => {
+            hotel.booking = false;
+            hotel.selectedDate = null;
+            this.snack.open(res.message, 'Close', {
+              duration: 4000, panelClass: ['success-snack']
+            });
+            this.loadAvailability(hotel);
+          },
+          error: () => {
+            hotel.booking = false;
+            this.loadAvailability(hotel);
+            this.snack.open('Please try again!!', 'Close', {
+              duration: 3500, panelClass: ['error-snack']
+            });
+          }
         });
-        this.loadAvailability(hotel);
       },
       error: () => {
         hotel.booking = false;
         this.snack.open('Please try again!!', 'Close', {
-          duration: 3000, panelClass: ['error-snack']
+          duration: 3500, panelClass: ['error-snack']
         });
       }
     });
