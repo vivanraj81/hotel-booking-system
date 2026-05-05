@@ -37,11 +37,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Allow CORS preflight + Spring infrastructure paths
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/**", "/error").permitAll()
-                .requestMatchers(HttpMethod.GET, "/hotels", "/hotels/**").permitAll()
+                // Public auth paths (defensive — auth lives in the auth-service)
+                .requestMatchers("/auth/**").permitAll()
+                // Authenticated business endpoints
+                .requestMatchers("/hotels/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/bookings/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/bookings").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
