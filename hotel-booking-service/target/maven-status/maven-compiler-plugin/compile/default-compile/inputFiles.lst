@@ -11,7 +11,6 @@
 /app/hotel-booking-service/src/main/java/com/hotel/booking/config/HotelDataSeeder.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/security/JwtAuthenticationFilter.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/repository/BookingRepository.java
-/app/hotel-booking-service/src/main/java/com/hotel/booking/repository/UserLookupRepository.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/service/HotelService.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/exception/ResourceNotFoundException.java
 /app/hotel-booking-service/src/main/java/com/hotel/booking/dto/BookingResponse.java
