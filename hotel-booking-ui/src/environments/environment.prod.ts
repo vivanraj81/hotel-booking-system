@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  authApiUrl: 'http://localhost:8081',
-  bookingApiUrl: 'http://localhost:8082'
+  // Replace with your actual Railway service URLs after first deploy
+  authApiUrl: 'https://hotel-auth-service-production.up.railway.app',
+  bookingApiUrl: 'https://hotel-booking-service-production.up.railway.app'
 };

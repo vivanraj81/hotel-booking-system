@@ -9,7 +9,6 @@ import com.hotel.booking.exception.InvalidBookingException;
 import com.hotel.booking.exception.ResourceNotFoundException;
 import com.hotel.booking.repository.BookingRepository;
 import com.hotel.booking.repository.HotelRepository;
-import com.hotel.booking.repository.UserLookupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +22,11 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final HotelRepository hotelRepository;
-    private final UserLookupRepository userLookupRepository;
 
     public BookingService(BookingRepository bookingRepository,
-                          HotelRepository hotelRepository,
-                          UserLookupRepository userLookupRepository) {
+                          HotelRepository hotelRepository) {
         this.bookingRepository = bookingRepository;
         this.hotelRepository = hotelRepository;
-        this.userLookupRepository = userLookupRepository;
     }
 
     @Transactional
@@ -51,9 +47,7 @@ public class BookingService {
                     throw new BookingConflictException("Date already booked for this hotel");
                 });
 
-        Long userId = userLookupRepository.findUserIdByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
-
+        Long userId = (long) Math.abs(username.hashCode());
         Booking booking = new Booking(
                 hotel.getId(), userId, username, request.getDate(), hotel.getPrice()
         );
