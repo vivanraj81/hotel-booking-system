@@ -1,6 +1,8 @@
 package com.hotel.booking.config;
 
 import com.hotel.booking.security.JwtAuthenticationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -20,6 +24,8 @@ import java.util.List;
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
@@ -45,7 +51,27 @@ public class SecurityConfig {
                 // Authenticated business endpoints
                 .requestMatchers("/hotels/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/bookings/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**").access((authentication, requestContext) -> {
+                    String path = requestContext.getRequest().getRequestURI();
+                    logger.info("SECURITY CHECK - Request path: {}", path);
+                    logger.info("SECURITY CHECK - Endpoint matches /admin/**: {}", path.startsWith("/admin/"));
+                    logger.info("SECURITY CHECK - Required role: ADMIN");
+                    
+                    Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+                    if (currentAuth != null) {
+                        logger.info("SECURITY CHECK - Current user: {}", currentAuth.getName());
+                        logger.info("SECURITY CHECK - User authorities: {}", currentAuth.getAuthorities());
+                    } else {
+                        logger.info("SECURITY CHECK - No authentication found in context");
+                    }
+                    
+                    boolean hasAdminRole = currentAuth != null && currentAuth.getAuthorities().stream()
+                            .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+                    
+                    logger.info("SECURITY CHECK - Access decision: {}", hasAdminRole ? "GRANTED" : "DENIED");
+                    
+                    return new org.springframework.security.authorization.AuthorizationDecision(hasAdminRole);
+                })
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
