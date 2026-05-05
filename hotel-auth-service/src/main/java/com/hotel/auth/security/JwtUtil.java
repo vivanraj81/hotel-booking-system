@@ -21,6 +21,9 @@ public class JwtUtil {
     private long expirationMs;
 
     private SecretKey getSigningKey() {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("JWT_SECRET is not configured");
+        }
         return Keys.hmacShaKeyFor(java.util.Base64.getDecoder().decode(secret));
     }
 

@@ -39,34 +39,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             String tokenPreview = token.length() > 20 ? token.substring(0, 20) + "..." : token;
-            logger.info("Token extracted: {}", tokenPreview);
+            logger.debug("Token received: {}", tokenPreview);
             
             boolean isValid = jwtUtil.validateToken(token);
-            logger.info("Token valid: {}", isValid);
+            logger.debug("Token valid: {}", isValid);
             
             if (isValid) {
                 String username = jwtUtil.extractUsername(token);
                 String role = jwtUtil.extractRole(token);
                 
-                logger.info("Username: {}", username);
-                logger.info("Role from token: {}", role);
+                logger.debug("Username: {}", username);
+                logger.debug("Role extracted: {}", role);
 
                 List<SimpleGrantedAuthority> authorities =
                         List.of(new SimpleGrantedAuthority("ROLE_" + role));
                 
-                logger.info("Authorities created: {}", authorities);
+                logger.debug("Authorities created: {}", authorities);
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(username, null, authorities);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
                 
-                logger.info("Authentication set: YES");
+                logger.debug("Authentication set: YES");
             } else {
-                logger.info("Authentication set: NO (invalid token)");
+                logger.warn("Authentication set: NO (invalid token)");
             }
         } else {
-            logger.info("Authentication set: NO (no Bearer token)");
+            logger.debug("Authentication set: NO (no Bearer token)");
         }
 
         filterChain.doFilter(request, response);

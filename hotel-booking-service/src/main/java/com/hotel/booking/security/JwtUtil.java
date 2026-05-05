@@ -19,6 +19,9 @@ public class JwtUtil {
     private String secret;
 
     private SecretKey getSigningKey() {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("JWT_SECRET is not configured");
+        }
         String maskedSecret = secret.length() > 8 ? secret.substring(0, 4) + "****" + secret.substring(secret.length() - 4) : "****";
         logger.debug("JWT Secret key (masked): {}", maskedSecret);
         return Keys.hmacShaKeyFor(java.util.Base64.getDecoder().decode(secret));
