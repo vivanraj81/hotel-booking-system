@@ -102,9 +102,7 @@ interface HotelWithState extends Hotel {
                 [matDatepickerFilter]="dateFilter(hotel)"
                 [min]="minDate"
                 [max]="maxDate"
-                [(ngModel)]="hotel.selectedDate"
-                readonly
-                [attr.data-testid]="'date-input-' + hotel.id">
+                [(ngModel)]="hotel.selectedDate">
               <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
@@ -214,8 +212,8 @@ export class UserDashboardComponent implements OnInit {
   hotels = signal<HotelWithState[]>([]);
   loading = signal<boolean>(true);
 
-  minDate = moment();
-  maxDate = moment().add(6, 'days');
+  minDate = moment().startOf('day');
+  maxDate = moment().add(6, 'days').endOf('day');
 
   ngOnInit(): void {
     this.loadHotels();
@@ -266,15 +264,14 @@ export class UserDashboardComponent implements OnInit {
 
       const today = moment().startOf('day');
       const maxDate = moment().add(6, 'days').endOf('day');
-      
-      // Check if date is within the next 7 days
-      const isWithinRange = d.isSameOrAfter(today) && d.isSameOrBefore(maxDate);
-      
-      // Also check if date is available (not already booked)
+
       const ds = d.format('YYYY-MM-DD');
-      const isAvailable = hotel.availableDates.includes(ds);
-      
-      return isWithinRange && isAvailable;
+
+      return (
+        d.isSameOrAfter(today) &&
+        d.isSameOrBefore(maxDate) &&
+        !hotel.bookedDates.includes(ds)
+      );
     };
   }
 
@@ -288,11 +285,11 @@ export class UserDashboardComponent implements OnInit {
       next: (av) => {
         hotel.bookedDates = av.bookedDates || [];
         hotel.availableDates = av.availableDates || [];
-        if (!hotel.availableDates.includes(dateStr)) {
+        if (hotel.bookedDates.includes(dateStr)) {
           hotel.booking = false;
           hotel.selectedDate = null;
           this.hotels.update((arr) => [...arr]);
-          this.snack.open('Please try again!!', 'Close', {
+          this.snack.open('Something went wrong. Please try again.', 'Close', {
             duration: 3500, panelClass: ['error-snack']
           });
           return;
@@ -310,7 +307,7 @@ export class UserDashboardComponent implements OnInit {
           error: () => {
             hotel.booking = false;
             this.loadAvailability(hotel);
-            this.snack.open('Please try again!!', 'Close', {
+            this.snack.open('Something went wrong. Please try again.', 'Close', {
               duration: 3500, panelClass: ['error-snack']
             });
           }
@@ -318,7 +315,7 @@ export class UserDashboardComponent implements OnInit {
       },
       error: () => {
         hotel.booking = false;
-        this.snack.open('Please try again!!', 'Close', {
+        this.snack.open('Something went wrong. Please try again.', 'Close', {
           duration: 3500, panelClass: ['error-snack']
         });
       }
