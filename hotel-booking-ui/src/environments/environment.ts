@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
-  authApiUrl: 'http://localhost:8081',
-  bookingApiUrl: 'http://localhost:8082'
+  production: true,
+   authApiUrl: 'https://hotel-booking-system-production-dc9e.up.railway.app',
+  bookingApiUrl: 'https://exciting-enthusiasm-production-cbb9.up.railway.app'
 };

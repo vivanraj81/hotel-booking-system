@@ -263,8 +263,18 @@ export class UserDashboardComponent implements OnInit {
   dateFilter(hotel: HotelWithState) {
     return (d: Moment | null): boolean => {
       if (!d) return false;
+
+      const today = moment().startOf('day');
+      const maxDate = moment().add(6, 'days').endOf('day');
+      
+      // Check if date is within the next 7 days
+      const isWithinRange = d.isSameOrAfter(today) && d.isSameOrBefore(maxDate);
+      
+      // Also check if date is available (not already booked)
       const ds = d.format('YYYY-MM-DD');
-      return hotel.availableDates.includes(ds);
+      const isAvailable = hotel.availableDates.includes(ds);
+      
+      return isWithinRange && isAvailable;
     };
   }
 
