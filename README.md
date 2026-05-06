@@ -1,7 +1,19 @@
-# Hotel Booking Microservices System
+# 🏨 Hotel Booking Microservices System
 
-A full-stack hotel booking platform with role-based access (ADMIN / USER), built using Spring Boot microservices and Angular.
-Supports secure JWT authentication, real-time availability, and a 7-day booking flow.
+A full-stack hotel booking platform with role-based access (**ADMIN / USER**), built using Spring Boot microservices and Angular. Supports secure JWT authentication, real-time availability, and a 7-day booking flow.
+
+---
+
+## 🌐 Live Demo
+
+* **Frontend (Vercel):**
+  https://hotel-booking-system-1aniuazew-vivan-rajs-projects.vercel.app
+
+* **Auth Service (Railway):**
+  https://hotel-booking-system-production-dc9e.up.railway.app
+
+* **Booking Service (Railway):**
+  https://exciting-enthusiasm-production-cbb9.up.railway.app
 
 ---
 
@@ -33,9 +45,12 @@ Supports secure JWT authentication, real-time availability, and a 7-day booking 
 
 * Login with JWT authentication
 * View hotels with 7-day availability
-* Disabled booked dates in calendar
+* Calendar with **clickable date selection**
+* Disabled booked dates in UI
 * Real-time availability validation before booking
-* Book hotel with confirmation message
+* Booking confirmation message
+
+---
 
 ### 👨‍💼 Admin
 
@@ -51,11 +66,11 @@ Supports secure JWT authentication, real-time availability, and a 7-day booking 
 
 ## 🔐 Security
 
-* JWT-based authentication (shared secret between services)
-* Role-based authorization (ADMIN / USER)
+* JWT-based authentication (shared secret across services)
+* Role-based authorization (**ADMIN / USER**)
 * Password hashing with BCrypt
-* Protected endpoints with Spring Security
-* Token expiry handling with automatic logout
+* Protected endpoints via Spring Security
+* Token expiry handling
 
 ---
 
@@ -85,25 +100,29 @@ Supports secure JWT authentication, real-time availability, and a 7-day booking 
 
 **Constraint:**
 
-* UNIQUE (hotel_id, reserved_date) → prevents double booking
+```
+UNIQUE (hotel_id, reserved_date)
+```
+
+→ Prevents double booking
 
 ---
 
 ## 🔌 REST APIs
 
-### Auth Service (:8081)
+### 🔐 Auth Service
 
 * `POST /auth/login` → returns JWT + role
 * `GET /auth/health` → health check
 
 ---
 
-### Booking Service (:8082)
+### 🏨 Booking Service
 
 * `GET /hotels` → list hotels
 * `GET /hotels/{id}/availability` → 7-day availability
-* `POST /bookings` → create booking (USER / ADMIN)
-* `GET /admin/bookings` → admin-only booking list
+* `POST /bookings` → create booking (**JWT required**)
+* `GET /admin/bookings` → admin-only bookings
 
 ---
 
@@ -117,10 +136,10 @@ Supports secure JWT authentication, real-time availability, and a 7-day booking 
 | Unauthorized / invalid token | 403    |
 | Server error                 | 500    |
 
-UI shows:
+**UI Messages:**
 
-* Success → `"Your booking for the Hotel <NAME> is successful"`
-* Failure → `"Please try again!!"`
+* ✅ Success → *"Your booking for the Hotel <NAME> is successful"*
+* ❌ Failure → Context-specific messages (e.g., booked date already selected)
 
 ---
 
@@ -129,7 +148,8 @@ UI shows:
 ### 1. Database Setup
 
 ```bash
-mysql -u root -e "CREATE DATABASE hotel_db;
+mysql -u root -e "
+CREATE DATABASE hotel_db;
 CREATE USER 'hoteluser'@'localhost' IDENTIFIED BY 'hotelpass';
 GRANT ALL PRIVILEGES ON hotel_db.* TO 'hoteluser'@'localhost';
 FLUSH PRIVILEGES;"
@@ -181,20 +201,22 @@ Open: http://localhost:4200
 ## 🧪 Verified Scenarios
 
 * Login with role-based redirect
-* Booking success message displayed correctly
+* Datepicker selection working correctly
 * Booked dates disabled in UI
-* Real-time availability validation prevents stale booking
-* Duplicate booking blocked (409)
-* Admin access restricted (403 for USER)
-* Pagination + sorting works in admin dashboard
+* Real-time availability validation
+* Duplicate booking prevented (409)
+* Admin access restriction enforced (403 for USER)
+* Pagination + sorting working
 
 ---
 
 ## 📁 Project Structure
 
-* `hotel-auth-service` → authentication + JWT
-* `hotel-booking-service` → business logic + bookings
-* `hotel-booking-ui` → Angular frontend
+```
+hotel-auth-service      → authentication + JWT  
+hotel-booking-service   → business logic + bookings  
+hotel-booking-ui        → Angular frontend  
+```
 
 ---
 
@@ -203,7 +225,13 @@ Open: http://localhost:4200
 * Token refresh mechanism
 * Booking cancellation flow
 * Email notifications
-* Hotel images and descriptions
+* Hotel images & descriptions
 * Revenue analytics charts
 
 ---
+
+## 📌 Notes
+
+* Fully deployed system with working frontend + backend
+* Microservices communicate via REST APIs
+* Production-ready authentication & authorization
